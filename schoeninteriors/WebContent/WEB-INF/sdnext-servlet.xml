@@ -1,0 +1,102 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+
+	<!-- <import resource="classpath:META-INF/cxf/cxf.xml" /> <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" 
+		/> <import resource="classpath:META-INF/cxf/cxf-servlet.xml" /> -->
+	<context:property-placeholder location="classpath:resources/database.properties" />
+	<context:component-scan base-package="com.schoeninteriors.*" />
+	<tx:annotation-driven transaction-manager="hibernateTransactionManager" />
+
+	<bean id="jspViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="" />
+		<property name="password" value="" />
+
+		<!-- The name of the property, following JavaBean naming conventions -->
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.debug">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${database.driver}" />
+		<property name="url" value="${database.url}" />
+		<property name="username" value="${database.user}" />
+		<property name="password" value="${database.password}" />
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>com.schoeninteriros.model.Users</value>
+				<value>com.schoeninteriros.model.Product</value>
+				<value>com.schoeninteriros.model.ProductDetails</value>
+				<value>com.schoeninteriros.model.Image</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="hibernateTransactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+	<mvc:resources mapping="/resources/**" location="/jsp/" />
+	<mvc:annotation-driven />
+
+
+	<!-- <jaxrs:server id="wmsWebService" address="/wmswebservices"> <jaxrs:providers> 
+		<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" /> </jaxrs:providers> 
+		<jaxrs:serviceBeans> <ref bean="cxfServiceImpl" /> </jaxrs:serviceBeans> 
+		<jaxrs:extensionMappings> <entry key="xml" value="application/xml" /> <entry 
+		key="json" value="application/json" /> </jaxrs:extensionMappings> </jaxrs:server> -->
+
+	<!-- <jaxws:server id="employeeSoapService" address="/employeesoapservices"> 
+		<jaxws:serviceBean> <ref bean="cxfSoapServiceImpl" /> </jaxws:serviceBean> 
+		</jaxws:server> -->
+
+	<!-- <jaxws:endpoint id="employeeSoapService" address="/employeesoapservices" 
+		implementor="#cxfSoapServiceImpl"> </jaxws:endpoint> <bean id="cxfSoapServiceImpl" 
+		class="com.schoeninteriros.webserviceimpl.CxfSoapServiceImpl"> <property 
+		name="userService" ref="userService"></property> </bean> <bean id="cxfServiceImpl" 
+		class="com.schoeninteriros.webserviceimpl.CxfRestServiceImpl" /> -->
+
+</beans>
